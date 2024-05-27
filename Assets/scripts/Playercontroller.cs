@@ -2,38 +2,46 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Guncontroller))]
 public class Playercontroller : MonoBehaviour
 {
-    public float speed = 400f;
+    public float speed = 5f;
     private Rigidbody rb;
-    private Camera MainCamera;
-    float rayLength;
+    private Camera mainCamera;
+    private float rayLength;
+    private Guncontroller guncontroller;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        MainCamera = FindAnyObjectByType<Camera>();
+        mainCamera = Camera.main;
+        guncontroller = GetComponent<Guncontroller>(); // Initialize guncontroller
     }
 
-    
     void FixedUpdate()
     {
-        //Movement
+        // Movement
         float inputX = Input.GetAxisRaw("Horizontal");
         float inputY = Input.GetAxisRaw("Vertical");
-        Vector3 movement = new Vector3(inputX, 0.0f, inputY);
-        rb.AddForce(movement);
+        Vector3 movement = new Vector3(inputX, 0.0f, inputY).normalized * speed;
 
-        //Face camera
-        Ray cameraray = MainCamera.ScreenPointToRay(Input.mousePosition);
+        // Set the velocity directly for immediate movement response
+        rb.velocity = movement;
+
+        // Face camera
+        Ray cameraRay = mainCamera.ScreenPointToRay(Input.mousePosition);
         Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-        
-        if(groundPlane.Raycast(cameraray, out rayLength ))
-        {
-            Vector3 PointToLook = cameraray.GetPoint(rayLength);
-            Debug.DrawLine(cameraray.origin,PointToLook,Color.yellow);
 
-            transform.LookAt(new Vector3(PointToLook.x, transform.position.y, PointToLook.z));
+        if (groundPlane.Raycast(cameraRay, out rayLength))
+        {
+            Vector3 pointToLook = cameraRay.GetPoint(rayLength);
+            transform.LookAt(new Vector3(pointToLook.x, transform.position.y, pointToLook.z));
         }
 
+        // Weapon input
+        if (Input.GetMouseButton(0))
+        {
+            guncontroller.Shoot();
+        }
     }
 }
