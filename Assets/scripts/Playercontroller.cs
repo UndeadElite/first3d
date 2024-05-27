@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(Guncontroller))]
 public class Playercontroller : MonoBehaviour
 {
+    public float maxhealth = 100f;
+    private float currenthealth;
     public float speed = 5f;
     private Rigidbody rb;
     private Camera mainCamera;
@@ -16,6 +18,8 @@ public class Playercontroller : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         mainCamera = Camera.main;
         guncontroller = GetComponent<Guncontroller>(); // Initialize guncontroller
+
+        currenthealth = maxhealth;
     }
 
     void FixedUpdate()
@@ -43,5 +47,20 @@ public class Playercontroller : MonoBehaviour
         {
             guncontroller.Shoot();
         }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        currenthealth -= damage;
+
+        if (currenthealth <= 0 )
+        {
+            die();
+        }
+    }
+
+    void die()
+    {
+        Debug.Log("player has died");
     }
 }
